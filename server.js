@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var _ = require('underscore');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -26,19 +27,8 @@ app.get('/todos', function (req, res) {
 app.get('/todos/:id', function (req, res) {
     //res.send('Asking for todo with id of ' + req.params.id); 
     var todoId = parseInt(req.params.id, 10);
-    var matchedTodo;
-    
-//    for (var i=0; i < todos.length; i++) {
-//        if (todos[i].id === todoId) {
-//            matchedTodo = todos[i];
-//        }
-//    }
-    
-    todos.forEach(function (todo) {
-        if (todoId === todo.id) {
-            matchedTodo = todo;
-        }
-    });
+    //find our todo using Underscore lib
+    var matchedTodo = _.findWhere(todos, {id: todoId});
     
     if (matchedTodo) {
         res.json(matchedTodo);
@@ -51,7 +41,15 @@ app.get('/todos/:id', function (req, res) {
 
 // POST /todos --- Add a TODO
 app.post('/todos', function (req, res) {
-    var todo = req.body;
+    //Underscore method to accept only the set arguments
+    var todo = _.pick(req.body, 'description', 'completed');
+    
+    if(!_.isBoolean(todo.completed) || !_.isString(todo.description) || todo.description.trim().length === 0 ) {
+        return res.status(400).send();   
+    } 
+    
+    //Trim body.description
+    todo.description = todo.description.trim();
     
     //first set todoNextid to body.id, then increment it
     todo.id = todoNextId++;
