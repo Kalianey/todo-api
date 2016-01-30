@@ -1,22 +1,16 @@
 var express = require('express');
+var bodyParser = require('body-parser');
+
 var app = express();
 var PORT = process.env.PORT || 3000;
+app.use(bodyParser.json());
 
 //TODO Collection
-var todos = [
-    //TODO Model
-    {
-    id: 1,
-    description : 'Learn Angular.js',
-    completed: false
-    }, 
-    {
-    id: 2,
-    description : 'Do Mean Stack course',
-    completed: false  
-    }
-];
+var todos = [];
+//not safe, just for this example
+var todoNextId = 1;
 
+// ROOT
 app.get('/', function (req, res) {
     res.send('Todo API Root');
 });
@@ -55,6 +49,33 @@ app.get('/todos/:id', function (req, res) {
 });
 
 
+// POST /todos --- Add a TODO
+app.post('/todos', function (req, res) {
+    var todo = req.body;
+    
+    //first set todoNextid to body.id, then increment it
+    todo.id = todoNextId++;
+    
+    todos.push(todo);
+    
+    res.json(todo);
+});
+
+
 app.listen(PORT, function () {
     console.log('Express listening on port '+PORT+'!');
 });
+
+
+//TODO Model
+//    {
+//    id: 1,
+//    description : 'Learn Angular.js',
+//    completed: false
+//    }, 
+//    {
+//    id: 2,
+//    description : 'Do Mean Stack course',
+//    completed: false  
+//    }
+
