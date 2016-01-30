@@ -74,6 +74,35 @@ app.delete('/todos/:id', function (req, res) {
 });
 
 
+// PUT /todos/:id
+app.put('/todos/:id', function (req, res) {
+    var todoId = parseInt(req.params.id, 10);
+    var matchedTodo = _.findWhere(todos, {id: todoId});
+    var todo = _.pick(req.body, 'description', 'completed');
+    var validAttributes = {};
+    
+    if (todo.hasOwnProperty('completed') && _.isBoolean(todo.completed)) {
+        validAttributes.completed = todo.completed;
+    } 
+    else if (todo.hasOwnProperty('completed')) {
+       //the property exists but it's not a boolean
+        return res.status(400).send();
+    } 
+    
+    if (todo.hasOwnProperty('description') && _.isString(todo.completed) && todo.description.trim().length() > 0) {
+        validAttributes.completed = todo.description;
+    } 
+    else if (todo.hasOwnProperty('description')) {
+       //the property exists but it's not a boolean
+        return res.status(400).send();
+    } 
+    
+    // Copy properties from one obj to another, as obj in javascript are passed by ref and not by value
+	_.extend(matchedTodo, validAttributes);
+	res.json(matchedTodo);
+});
+
+
 app.listen(PORT, function () {
     console.log('Express listening on port '+PORT+'!');
 });
